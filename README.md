@@ -1,11 +1,11 @@
 # Boki Downloader
 
 ### Version
-0.2.0a
+0.3.0a
 
-I advise you to change the location in the script
-as it is hardcoded, and I'm too tired to change make it
-dynamic right now. For now, you need to have ffmpeg because the script need to use another audio codec to be usable anywhere.
+I advise you to change the location in the script as it is hardcoded, 
+and I'm too tired to make it dynamic right now. 
+For now, you need to have ffmpeg because the script need to use another audio codec to be usable anywhere.
 
 How to use the script `BokiLoader.py`:
 * Launch the script via a terminal
@@ -15,10 +15,12 @@ How to use the script `BokiLoader.py`:
 * Enjoy
 
 How to use the CLI `bokiloader_cli.py`:
-* Launch the script via python and put the url of the YouTube video and the file will be downloaded into your `C:/Users/{User}/Download/`
+* Launch the script via python and put the url of the YouTube video 
+and the file will be downloaded into your `C:/Users/{User}/Download/`
   ~~~~
   python bokiloader_cli.py [url]
-* Launch the script via python and put the url of the YouTube video and add the destination folder were you want the mp3 to get downloaded
+* Launch the script via python and put the url of the YouTube video
+and add the destination folder were you want the mp3 to get downloaded
   ~~~~
   python bokiloader_cli.py [url] --dest [destination_folder]
 
@@ -26,11 +28,11 @@ How to use the CLI `bokiloader_cli.py`:
 
 1. [x] Can download a single link
 2. [x] Add correctly name and author
-3. [ ] Add cover to the mp3
+3. [x] Add cover, title and artist to mp3 tags
 4. [x] Make the main script into a CLI `bokiloader.py`
 
 ### Work in progress (just to not say I won't probably make them)
-1. [ ] Can download mp4
+1. [ ] Can download into a mp4
 2. [ ] Can download a playlist
 3. [ ] Is linked to an API so it works from _**BOKIVY**_
 
@@ -44,5 +46,6 @@ How to use the CLI `bokiloader_cli.py`:
 
 | Version |                                            Change                                             |
 |:-------:|:---------------------------------------------------------------------------------------------:|
-| 0.1.0a  |             Local change where I remake the previous shitty script I made before              |
+| 0.3.0a  |         Metadata tags such as the cover, title and artist are added onto the mp3 file         |
 | 0.2.0a  | Initial commit version were the main script do everything I want for now plus the CLI version |
+| 0.1.0a  |             Local change where I remake the previous shitty script I made before              |
