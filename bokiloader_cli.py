@@ -101,10 +101,12 @@ def main():
     parser = argparse.ArgumentParser(description="Download and convert YouTube videos to MP3.")
 
     # Add arguments
-    parser.add_argument('url', help="The URL of the YouTube video to download.")
-    parser.add_argument('--destination', default=default_download_folder,
-                        help="The destination folder for the downloaded and converted file. Default is the download "
-                             "directory.")
+    parser.add_argument('url',
+                        help="The URL of the YouTube video to download.")
+    parser.add_argument('--destination',
+                        default=default_download_folder,
+                        help="The destination folder for the downloaded and converted file. "
+                             "Default is the download directory.")
 
     # Parse arguments
     args = parser.parse_args()
