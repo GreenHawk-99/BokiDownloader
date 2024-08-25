@@ -3,7 +3,7 @@ import requests
 from pytube import YouTube
 from pydub import AudioSegment
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error
+from mutagen.id3 import ID3, APIC, error, TIT2, TPE1
 
 # https://www.youtube.com/watch?v=kdIK-aw5jLk
 # Test Data from which info comment come from
@@ -26,8 +26,8 @@ def download_image(image_url, save_path):
     return save_path
 
 
-def add_or_replace_cover_in_mp3(mp3_path, cover_path):
-    print("[INFO] Entering add_or_replace_cover_in_mp3")
+def add_metadata_to_mp3(mp3_path, cover_path, artist, title):
+    print("[INFO] Entering add_metadata_to_mp3")
     audio = MP3(mp3_path, ID3=ID3)
 
     # Ensure ID3 tags are present
@@ -47,10 +47,14 @@ def add_or_replace_cover_in_mp3(mp3_path, cover_path):
             data=img_file.read()
         ))
 
+    # Add title and artist
+    audio.tags.add(TIT2(encoding=3, text=title))  # Title tag
+    audio.tags.add(TPE1(encoding=3, text=artist))  # Artist tag
+
     # Save the changes to the file
     audio.save(v2_version=3)  # Explicitly saving ID3v2.3 for compatibility
     print(f"[SUCCESS] Added or replaced cover in MP3: {mp3_path}")
-    print("[INFO] Exiting add_or_replace_cover_in_mp3")
+    print("[INFO] Exiting add_metadata_to_mp3")
 
 
 def get_audio():
@@ -71,7 +75,7 @@ def get_audio():
         else:
             music_name = f"{video_chanel}-{video_title.title().replace(' ', '')}"
             music_artist = video_chanel
-            music_title = video_title.title().replace(" ", "")
+            music_title = video_title
 
         def download_and_convert():
             print("[INFO] Entering download_and_convert")
@@ -88,7 +92,7 @@ def get_audio():
                 # Download and add the cover
                 cover_path = download_image(thumbnail_url, base + '.jpg')
                 if cover_path:
-                    add_or_replace_cover_in_mp3(converted_file, cover_path)
+                    add_metadata_to_mp3(converted_file, cover_path, music_artist, music_title)
                     os.remove(cover_path)  # Clean up the cover image
                     print(f"[DELETE] Cleaned up cover image file: {cover_path}")
             except Exception as ex:
@@ -114,7 +118,6 @@ def get_audio():
         print("[ERROR] Error downloading video")
         if e.args[0].__contains__("regex_search"):
             print("[ERROR] The url provided is invalid")
-
     finally:
         print("[INFO] Exiting get_audio")
 

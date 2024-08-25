@@ -7,20 +7,20 @@ I advise you to change the location in the script
 as it is hardcoded, and I'm too tired to change make it
 dynamic right now. For now, you need to have ffmpeg because the script need to use another audio codec to be usable anywhere.
 
-How to use the script `YoutubeDownloader.py`:
+How to use the script `BokiLoader.py`:
 * Launch the script via a terminal
   * ~~~~
-    ../BokiDownloader/python YoutubeDownloader.py
+    ../BokiDownloader/python BokiLoader.py
 * Enter the YouTube video link when asked
 * Enjoy
 
-How to use the CLI `bokiloader.py`:
-* Launch the script via python and put the url of the YouTube video and the file will be downloaded into your `C:/{User}/Download/`
+How to use the CLI `bokiloader_cli.py`:
+* Launch the script via python and put the url of the YouTube video and the file will be downloaded into your `C:/Users/{User}/Download/`
   ~~~~
-  python bokiloader.py [url]
+  python bokiloader_cli.py [url]
 * Launch the script via python and put the url of the YouTube video and add the destination folder were you want the mp3 to get downloaded
   ~~~~
-  python bokiloader.py [url] --dest [destination_folder]
+  python bokiloader_cli.py [url] --dest [destination_folder]
 
 ### Basic Spec
 
