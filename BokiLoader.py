@@ -3,7 +3,7 @@ import requests
 from pytube import YouTube
 from pydub import AudioSegment
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error, TIT2, TPE1
+from mutagen.id3 import ID3, APIC, TIT2, TPE1, TENC
 
 # https://www.youtube.com/watch?v=kdIK-aw5jLk
 # Test Data from which info comment come from
@@ -50,6 +50,7 @@ def add_metadata_to_mp3(mp3_path, cover_path, artist, title):
     # Add title and artist
     audio.tags.add(TIT2(encoding=3, text=title))  # Title tag
     audio.tags.add(TPE1(encoding=3, text=artist))  # Artist tag
+    audio.tags.add(TENC(encoding=3, text="BokiDownloader"))
 
     # Save the changes to the file
     audio.save(v2_version=3)  # Explicitly saving ID3v2.3 for compatibility
@@ -61,21 +62,32 @@ def get_audio():
     print("[INFO] Entering get_audio")
     try:
         yt = YouTube(link)
-        stream = yt.streams.filter(only_audio=True).first()
+        stream = yt.streams.filter(only_audio=True).order_by("abr").last()
 
         video_title = yt.title
         video_chanel = yt.author
         thumbnail_url = yt.thumbnail_url
 
+        # if the YouTube title is "UNFINISH - Another Phase"
+        # return music_artist = UNFINISH
+        # and music_title = Another Phase
         if "-" in video_title:
-            music_name = video_title.title().replace(" ", "")
             music_info = video_title.split("-")
-            music_artist = music_info[0]
-            music_title = music_info[1]
+            music_artist = music_info[0].replace(" ", "")
+            music_title = music_info[1].replace(" ", "")
+            music_name = video_title.title().replace(" ", "")
+        # if the YouTube author is "UNFINISH - Topic"
+        # return music_artist = UNFINISH
+        # and music_title = Another Phase
+        elif "Topic" in video_chanel:
+            music_info = video_chanel.split("-")
+            music_artist = music_info[0].replace(" ", "")
+            music_title = video_title
+            music_name = f"{music_artist}-{video_title.title().replace(' ', '')}"
         else:
-            music_name = f"{video_chanel}-{video_title.title().replace(' ', '')}"
             music_artist = video_chanel
             music_title = video_title
+            music_name = f"{video_chanel}-{video_title.title().replace(' ', '')}"
 
         def download_and_convert():
             print("[INFO] Entering download_and_convert")

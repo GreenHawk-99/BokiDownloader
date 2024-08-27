@@ -43,9 +43,9 @@ and add the destination folder were you want the mp3 to get downloaded
 4. [ ] Knows how to modify this script as it's not a release 1.0 local change must be made
 5. [x] (Optional) Don't be a retard
 
-
-| Version |                                            Change                                             |
-|:-------:|:---------------------------------------------------------------------------------------------:|
-| 0.3.0a  |         Metadata tags such as the cover, title and artist are added onto the mp3 file         |
-| 0.2.0a  | Initial commit version were the main script do everything I want for now plus the CLI version |
-| 0.1.0a  |             Local change where I remake the previous shitty script I made before              |
+### Change log
+| Version |                                                                                               Change                                                                                               |
+|:-------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| 0.3.0a  | Metadata tags such as the cover, title and artist are added onto the mp3 file <br/> Retrieve Author and Title improved, Compiled by tag added, audio quality from pytube up from 48kbps to 160kbps |
+| 0.2.0a  |                                                   Initial commit version were the main script do everything I want for now plus the CLI version                                                    |
+| 0.1.0a  |                                                                Local change where I remake the previous shitty script I made before                                                                |
