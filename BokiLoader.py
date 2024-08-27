@@ -3,14 +3,13 @@ import requests
 from pytube import YouTube
 from pydub import AudioSegment
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC, error
+from mutagen.id3 import ID3, APIC, TIT2, TPE1, TENC
 
 # https://www.youtube.com/watch?v=kdIK-aw5jLk
 # Test Data from which info comment come from
 # https://www.youtube.com/watch?v=oCbKbXEFY0k
 
 destination = "C:/Users/green/Music/YTDownloaderV2/"
-link = input("Enter the link of the video: ")
 
 
 def download_image(image_url, save_path):
@@ -27,15 +26,18 @@ def download_image(image_url, save_path):
     return save_path
 
 
-def add_cover_to_mp3(mp3_path, cover_path):
-    print("[INFO] Entering add_cover_to_mp3")
+def add_metadata_to_mp3(mp3_path, cover_path, artist, title):
+    print("[INFO] Entering add_metadata_to_mp3")
     audio = MP3(mp3_path, ID3=ID3)
-    try:
+
+    # Ensure ID3 tags are present
+    if not audio.tags:
         audio.add_tags()
-    except error as ce:
-        print("[ERROR] Error adding the audio tag")
-        print(ce)
-        pass
+
+    # Remove any existing cover image
+    audio.tags.delall("APIC")
+
+    # Add the new cover image
     with open(cover_path, 'rb') as img_file:
         audio.tags.add(APIC(
             encoding=3,  # UTF-8
@@ -44,30 +46,48 @@ def add_cover_to_mp3(mp3_path, cover_path):
             desc=u'Cover',
             data=img_file.read()
         ))
-    audio.save()
-    print(f"[SUCCESS] Added cover to MP3: {mp3_path}")
-    print("[INFO] Exiting add_cover_to_mp3")
+
+    # Add title and artist
+    audio.tags.add(TIT2(encoding=3, text=title))  # Title tag
+    audio.tags.add(TPE1(encoding=3, text=artist))  # Artist tag
+    audio.tags.add(TENC(encoding=3, text="BokiDownloader"))
+
+    # Save the changes to the file
+    audio.save(v2_version=3)  # Explicitly saving ID3v2.3 for compatibility
+    print(f"[SUCCESS] Added or replaced cover in MP3: {mp3_path}")
+    print("[INFO] Exiting add_metadata_to_mp3")
 
 
 def get_audio():
     print("[INFO] Entering get_audio")
     try:
         yt = YouTube(link)
-        stream = yt.streams.filter(only_audio=True).first()
+        stream = yt.streams.filter(only_audio=True).order_by("abr").last()
 
         video_title = yt.title
         video_chanel = yt.author
         thumbnail_url = yt.thumbnail_url
 
+        # if the YouTube title is "UNFINISH - Another Phase"
+        # return music_artist = UNFINISH
+        # and music_title = Another Phase
         if "-" in video_title:
-            music_name = video_title.title().replace(" ", "")
             music_info = video_title.split("-")
-            music_artist = music_info[0]
-            music_title = music_info[1]
+            music_artist = music_info[0].replace(" ", "")
+            music_title = music_info[1].replace(" ", "")
+            music_name = video_title.title().replace(" ", "")
+        # if the YouTube author is "UNFINISH - Topic"
+        # return music_artist = UNFINISH
+        # and music_title = Another Phase
+        elif "Topic" in video_chanel:
+            music_info = video_chanel.split("-")
+            music_artist = music_info[0].replace(" ", "")
+            music_title = video_title
+            music_name = f"{music_artist}-{video_title.title().replace(' ', '')}"
         else:
-            music_name = f"{video_chanel}-{video_title.replace(' ', '')}"
             music_artist = video_chanel
-            music_title = video_title.title().replace(" ", "")
+            music_title = video_title
+            music_name = f"{video_chanel}-{video_title.title().replace(' ', '')}"
 
         def download_and_convert():
             print("[INFO] Entering download_and_convert")
@@ -76,15 +96,17 @@ def get_audio():
             converted_file = base + '.mp3'
 
             try:
-                print("[INFO] Converting in mp3")
+                print("[INFO] Converting to mp3")
                 audio = AudioSegment.from_file(downloaded_file)
                 audio.export(converted_file, format="mp3", bitrate="192k")
-                print(f"[SUCCESS] Converting finished: {converted_file}")
+                print(f"[SUCCESS] Conversion finished: {converted_file}")
+
+                # Download and add the cover
                 cover_path = download_image(thumbnail_url, base + '.jpg')
                 if cover_path:
-                    add_cover_to_mp3(converted_file, cover_path)
-                    os.remove(cover_path)  # Clean up cover image file after embedding
-                    print(f"[DELETE] Clean up cover image file: {cover_path}")
+                    add_metadata_to_mp3(converted_file, cover_path, music_artist, music_title)
+                    os.remove(cover_path)  # Clean up the cover image
+                    print(f"[DELETE] Cleaned up cover image file: {cover_path}")
             except Exception as ex:
                 print(f"[ERROR] An error occurred during conversion: {str(ex)}")
                 if os.path.exists(downloaded_file):
@@ -106,10 +128,14 @@ def get_audio():
         download_and_convert()
     except Exception as e:
         print("[ERROR] Error downloading video")
-        print(e)
-
+        if e.args[0].__contains__("regex_search"):
+            print("[ERROR] The url provided is invalid")
     finally:
         print("[INFO] Exiting get_audio")
 
 
-get_audio()
+if __name__ == "__main__":
+    # Input of the video url
+    link = input("Enter the link of the video: ")
+    # Start the download event
+    get_audio()
